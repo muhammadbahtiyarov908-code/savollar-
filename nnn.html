@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interaktiv test | HA yoki YO‘Q</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;padding:20px;font-family:Arial,sans-serif;color:#f1f5f9;
+ background:linear-gradient(135deg,#0f172a,#1e1b4b,#312e81);
+ min-height:100vh
+}
+header{text-align:center;margin:0 auto 24px}
+header h1{margin:8px 0;font-size:28px}
+header p{color:#cbd5e1;font-size:14px}
+.layout{
+ max-width:1200px;margin:auto;
+ display:grid;grid-template-columns:260px minmax(0,1fr);
+ gap:20px;align-items:start
+}
+.card{
+ background:#ffffff0d;border:1px solid #ffffff20;
+ border-radius:18px;padding:18px;margin-bottom:16px;
+ box-shadow:0 12px 30px #0002
+}
+h2{font-size:19px;margin:0 0 15px}
+h3{font-size:15px;margin:18px 0 12px}
+.muted{font-size:13px;color:#cbd5e1;line-height:1.5}
+
+/* CHAP TOMON */
+#randomResult{
+ min-height:85px;display:flex;align-items:center;justify-content:center;
+ font-size:35px;font-weight:900;border:2px solid #64748b;
+ border-radius:14px;background:#0f172a88;margin:12px 0;
+ transition:.15s
+}
+#randomResult.ha{color:#4ade80;border-color:#22c55e;background:#14532d55}
+#randomResult.yoq{color:#f87171;border-color:#ef4444;background:#7f1d1d55}
+button{font-family:inherit}
+.btn{
+ border:0;border-radius:10px;padding:12px 14px;
+ background:#4f46e5;color:white;font-weight:bold;
+ cursor:pointer;transition:.2s
+}
+.btn:hover:not(:disabled){filter:brightness(1.15)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+#randomBtn{width:100%;font-size:13px;padding:13px 6px}
+.numbers{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px
+}
+.num{
+ padding:10px 0;min-width:0;border:1px solid #475569;
+ background:#1e293b;color:white;border-radius:8px;
+ font-weight:bold;cursor:pointer
+}
+.num.active{outline:2px solid #a5b4fc;background:#4338ca}
+.num.correct{background:#166534;border-color:#22c55e}
+.num.wrong{background:#991b1b;border-color:#ef4444}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#cbd5e1}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.dot.green{background:#22c55e}.dot.red{background:#ef4444}.dot.blue{background:#818cf8}
+
+/* O‘NG TOMON */
+.progress-info{
+ display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
+ font-size:13px;color:#cbd5e1;margin-bottom:10px
+}
+.progress{height:6px;background:#334155;border-radius:9px;overflow:hidden;margin-bottom:20px}
+#progressBar{height:100%;width:0;background:#818cf8;transition:.25s}
+#questionText{font-size:21px;line-height:1.5;margin:12px 0 20px}
+.option{
+ display:flex;align-items:flex-start;gap:12px;width:100%;
+ text-align:left;padding:14px;margin:10px 0;border-radius:12px;
+ border:1px solid #475569;background:#1e293b;color:white;
+ cursor:pointer;font-size:15px;line-height:1.5;transition:.15s
+}
+.option:hover:not(:disabled){background:#334155;border-color:#818cf8}
+.option.selected{border-color:#818cf8}
+.option.right{background:#14532d;border-color:#22c55e}
+.option.incorrect{background:#7f1d1d;border-color:#ef4444}
+.option:disabled{cursor:default}
+.letter{
+ flex-shrink:0;display:grid;place-items:center;
+ width:29px;height:29px;border-radius:8px;
+ background:#334155;font-weight:bold
+}
+
+/* DARHOL CHIQADIGAN JAVOB */
+#feedback{
+ display:none;padding:14px;border-radius:12px;
+ margin-top:16px;font-size:14px;line-height:1.6
+}
+#feedback.show{display:block}
+#feedback.good{background:#14532d66;border:1px solid #22c55e;color:#bbf7d0}
+#feedback.bad{background:#7f1d1d66;border:1px solid #ef4444;color:#fecaca}
+#feedback strong{display:block;font-size:16px;margin-bottom:4px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.secondary{background:#334155}
+.green{background:#15803d}
+#resultSummary{margin-top:15px;font-weight:bold;line-height:1.7}
+
+/* JAVOBLAR SLAYDLARI */
+#answerPanel{display:none;margin-top:18px}
+.key-slides{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.key-slide{
+ border:1px solid #64748b;border-radius:9px;
+ padding:10px 13px;background:#1e293b;color:white;cursor:pointer
+}
+.key-slide.active{background:#4f46e5}
+.key-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.key-item{
+ text-align:center;padding:12px 5px;border-radius:9px;
+ background:#1e293b;border:1px solid #334155;font-size:13px
+}
+.key-item strong{display:block;color:#86efac;font-size:20px;margin-top:5px}
+
+@media(max-width:750px){
+ body{padding:12px}
+ .layout{grid-template-columns:1fr}
+ .left{display:grid;grid-template-columns:1fr;gap:0}
+ header h1{font-size:23px}
+ #questionText{font-size:18px}
+ .key-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+
+<body>
+<header>
+ <h1>📚 INTERAKTIV TEST</h1>
+ <p>30 ta savol • Darhol javob tekshirish • HA yoki YO‘Q</p>
+</header>
+
+<div class="layout">
+
+<!-- CHAP USTUN -->
+<aside class="left">
+
+ <section class="card">
+  <h2>🎲 HA yoki YO‘Q</h2>
+  <p class="muted">Tugmani bos. Javoblar 3 soniya almashib, tasodifiy natijada to‘xtaydi.</p>
+  <div id="randomResult">?</div>
+  <button class="btn" id="randomBtn" onclick="randomTanla()">🎲 RANDOM TANLASH</button>
+ </section>
+
+ <section class="card">
+  <h2>🔢 Savollar</h2>
+  <div class="progress-info">
+   <span>Javob berildi</span>
+   <strong id="answered">0 / 30</strong>
+  </div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div class="numbers" id="numbers"></div>
+  <div class="legend">
+   <span><i class="dot green"></i>To‘g‘ri</span>
+   <span><i class="dot red"></i>Noto‘g‘ri</span>
+   <span><i class="dot blue"></i>Tanlangan</span>
+  </div>
+ </section>
+
+</aside>
+
+<!-- O‘NG USTUN -->
+<main>
+
+ <section class="card" id="quiz">
+  <div class="progress-info">
+   <strong id="questionNumber">1-savol / 30</strong>
+   <span id="questionStatus">Javob tanlanmagan</span>
+  </div>
+  <div class="progress"><div id="questionProgress" style="height:100%;width:3.33%;background:#818cf8"></div></div>
+
+  <h2 id="questionText"></h2>
+  <div id="options"></div>
+
+  <div id="feedback" role="status" aria-live="polite"></div>
+
+  <div class="actions">
+   <button class="btn secondary" id="prevBtn" onclick="move(-1)">← Oldingi</button>
+   <button class="btn" id="nextBtn" onclick="move(1)">Keyingi →</button>
+   <button class="btn green" onclick="finishTest()">🏁 Yakunlash</button>
+  </div>
+
+  <div id="resultSummary"></div>
+ </section>
+
+ <section class="card">
+  <h2>🗝️ To‘g‘ri javoblar</h2>
+  <p class="muted">Javoblar kalitini uchta slaydda ko‘rish mumkin.</p>
+  <button class="btn green" onclick="toggleKeys()">👁 To‘g‘ri javoblarni ko‘rish</button>
+
+  <div id="answerPanel">
+   <div class="key-slides">
+    <button class="key-slide active" onclick="showKey(0)">1–10</button>
+    <button class="key-slide" onclick="showKey(1)">11–20</button>
+    <button class="key-slide" onclick="showKey(2)">21–30</button>
+   </div>
+   <div id="keyContent"></div>
+   <div class="actions">
+    <button class="btn secondary" id="keyPrev" onclick="showKey(currentKey-1)">← Oldingi</button>
+    <button class="btn" id="keyNext" onclick="showKey(currentKey+1)">Keyingi →</button>
+   </div>
+  </div>
+ </section>
+
+</main>
+</div>
+
+<script>
+// HA / YO‘Q RANDOM
+let randomBand=false;
+
+function randomTanla(){
+ if(randomBand)return;
+ randomBand=true;
+
+ const result=document.getElementById("randomResult");
+ const button=document.getElementById("randomBtn");
+ const start=Date.now();
+
+ button.disabled=true;
+ button.textContent="⏳ TANLANMOQDA...";
+
+ function aylantir(){
+  const elapsed=Date.now()-start;
+  const answer=Math.random()<0.5?"HA":"YO‘Q";
+
+  result.textContent=answer;
+  result.classList.remove("ha","yoq");
+  result.classList.add(answer==="HA"?"ha":"yoq");
+
+  if(elapsed>=3000){
+   const finalAnswer=Math.random()<0.5?"HA":"YO‘Q";
+   result.textContent=finalAnswer;
+   result.classList.remove("ha","yoq");
+   result.classList.add(finalAnswer==="HA"?"ha":"yoq");
+
+   button.disabled=false;
+   button.textContent="🔄 QAYTA TANLASH";
+   randomBand=false;
+   return;
+  }
+
+  const progress=elapsed/3000;
+  setTimeout(aylantir,45+progress*progress*240);
+ }
+ aylantir();
+}
+
+// TEST SAVOLLARI
+const questions=[
+["Tilning amaliy ahamiyati nimada?",["Fikr va axborotni boshqalarga yetkazishda","Faqat she’r yozishda","Faqat imtihon topshirishda"],0],
+["Akademik yozuvning asosiy maqsadi nima?",["Fikrni aniq, mantiqiy va dalillar bilan ifodalash","Matnni imkon qadar uzun qilish","Faqat murakkab so‘zlardan foydalanish"],0],
+["Qaysi vaziyatda rasmiy til uslubi ko‘proq kerak bo‘ladi?",["Do‘stga hazil yozganda","Universitetga ariza yozganda","O‘yin paytida suhbatlashganda"],1],
+["Savodli yozishning amaliy foydasi qaysi?",["Xabarni tushunishni qiyinlashtiradi","Faqat yozuvni chiroyli ko‘rsatadi","Fikrni to‘g‘ri va tushunarli yetkazadi"],2],
+["Rasmiy elektron xatda qaysi murojaat ma’qul?",["Hoy, qarang!","Assalomu alaykum, hurmatli ustoz","Nima gap?"],1],
+["Matnda mantiqiy izchillik nimani anglatadi?",["Fikrlarning tartibli va o‘zaro bog‘liq bo‘lishini","Har bir gapni boshqa mavzuga burishni","Bir fikrni ko‘p marta takrorlashni"],0],
+["Dalil akademik matnda nima uchun ishlatiladi?",["Matnni bezash uchun","Fikrni asoslash va ishonchliligini oshirish uchun","Matnni ataylab murakkablashtirish uchun"],1],
+["Qaysi biri yozma muloqotga misol bo‘ladi?",["Bosh irg‘ash","Qo‘l silkitish","Rasmiy ariza yozish"],2],
+["Noaniq jumlaning asosiy muammosi nima?",["O‘quvchi fikrni turlicha tushunishi mumkin","Jumla juda qisqa bo‘lib qoladi","Unda doim yangi so‘zlar bo‘ladi"],0],
+["Akademik matnda manbani ko‘rsatish nima uchun muhim?",["Matnni uzaytirish uchun","Foydalanilgan axborot manbasini tan olish uchun","Muallif fikrini yashirish uchun"],1],
+["Qaysi gap rasmiy uslubga mos?",["Shuni tezroq qilib tashlang","Iltimos, hujjatni belgilangan muddatda taqdim eting","Hujjatni tashavoring"],1],
+["Til madaniyati nimalarni o‘z ichiga oladi?",["Faqat baland ovozda gapirishni","Faqat shevaga xos so‘zlarni ishlatishni","Til me’yorlariga rioya qilish va vaziyatga mos ifodalanishni"],2],
+["Tahrirlashning asosiy vazifasi nima?",["Matndagi xato va noaniqliklarni aniqlab, tuzatish","Matnni albatta ikki baravar uzaytirish","Barcha tinish belgilarini olib tashlash"],0],
+["Qaysi biri akademik yozuvga xos?",["Asossiz da’volar","Dalil va mantiqqa tayangan bayon","Faqat hissiyotga tayanish"],1],
+["Tinish belgilarini to‘g‘ri qo‘llash nimaga yordam beradi?",["Matnni tushunishni osonlashtiradi","So‘zlarning ma’nosini doim o‘zgartiradi","Matnni keraksiz qiladi"],0],
+["Tilning kasbiy hayotdagi ahamiyati qaysi javobda to‘g‘ri berilgan?",["Kasbiy muloqotga ta’sir qilmaydi","Faqat rahbarlarga kerak","Hujjat tuzish, muzokara va fikr almashishga yordam beradi"],2],
+["Xulosa qismi qanday vazifani bajaradi?",["Asosiy fikrlarni umumlashtiradi","Yangi, mavzuga aloqasiz masalani boshlaydi","Faqat matn hajmini oshiradi"],0],
+["Qaysi jumla aniqroq yozilgan?",["U narsa o‘sha joyda bo‘ldi","Talabalar topshiriqni dushanba kuni topshirdilar","Keyin u buni shunaqa qildi"],1],
+["Plagiat nima?",["O‘z fikrini yozish","Matnni imlo jihatdan tekshirish","Boshqaning ishini yoki fikrini manbasiz o‘ziniki sifatida ko‘rsatish"],2],
+["Reja tuzish yozishda qanday yordam beradi?",["Fikrlarni tartibga solib, matn tuzilishini belgilaydi","Yozishni butunlay keraksiz qiladi","Faqat sarlavha tanlashga xizmat qiladi"],0],
+["Qaysi biri og‘zaki muloqotga misol?",["Hisobot yozish","Yuzma-yuz suhbatlashish","Ariza topshirish"],1],
+["Akademik yozuvda hissiy va norasmiy iboralarni cheklash sababi nima?",["Matnni xolis va aniq saqlash uchun","Matnni tushunarsiz qilish uchun","Muallif fikrini yashirish uchun"],0],
+["So‘z tanlashda nimaga e’tibor berish kerak?",["Faqat so‘zning uzunligiga","Ma’no, auditoriya va vaziyatga mosligiga","Imkon qadar kam uchraydigan so‘zlarga"],1],
+["Qaysi holat samarali muloqotga yordam beradi?",["Suhbatdoshni tinglamaslik","Noaniq va chalkash gapirish","Fikrni aniq bayon etish va tinglovchini hisobga olish"],2],
+["Matnning kirish qismida odatda nima beriladi?",["Mavzu va uning dolzarbligi haqida ma’lumot","Faqat foydalanilgan manbalar ro‘yxati","Faqat yakuniy xulosa"],0],
+["Rasmiy hujjatda imlo xatolari ko‘p bo‘lsa, qanday ta’sir qilishi mumkin?",["Hujjatni har doim kuchliroq qiladi","Matnning ishonchliligi va tushunarliligini pasaytirishi mumkin","Hech qanday ta’siri bo‘lmaydi"],1],
+["Til va tafakkur o‘rtasidagi bog‘liqlik qaysi javobda ifodalangan?",["Til fikrlarni ifodalash va tartibga solishga yordam beradi","Til faqat tovushlardan iborat","Tafakkur va til hech qachon bog‘liq emas"],0],
+["Qaysi usul taqdimotda fikrni tushunarli qiladi?",["Barcha ma’lumotni bir slaydga joylash","Juda tez va tanaffussiz gapirish","Asosiy fikrlarni tartib bilan, sodda va aniq tushuntirish"],2],
+["Akademik matnda xolislik nimani anglatadi?",["Shaxsiy yoqtirishni dalil o‘rnida ishlatish","Fikrni dalillar asosida, biryoqlama bo‘lmagan tarzda bayon qilish","Boshqa qarashlarni ataylab yashirish"],1],
+["Tilning kundalik hayotdagi amaliy ahamiyatiga qaysi misol mos?",["Yo‘l so‘rash, xabar yozish va xizmatlardan foydalanishda fikrni tushuntirish","Faqat ilmiy maqola yozish","Faqat lug‘at yodlash"],0]
+];
+
+const letters=["A","B","C"];
+let current=0;
+let answers=Array(30).fill(null);
+let currentKey=0;
+let finished=false;
+
+const numbers=document.getElementById("numbers");
+
+questions.forEach((q,i)=>{
+ const b=document.createElement("button");
+ b.className="num";
+ b.textContent=i+1;
+ b.onclick=()=>renderQuestion(i);
+ numbers.appendChild(b);
+});
+
+function renderQuestion(i){
+ current=i;
+ const q=questions[i];
+
+ document.getElementById("questionNumber").textContent=(i+1)+"-savol / 30";
+ document.getElementById("questionText").textContent=(i+1)+". "+q[0];
+ document.getElementById("questionStatus").textContent=
+  answers[i]===null?"Javob tanlanmagan":"Javob belgilangan";
+ document.getElementById("feedback").className="";
+ document.getElementById("feedback").innerHTML="";
+ document.getElementById("resultSummary").textContent="";
+ document.getElementById("questionProgress").style.width=((i+1)/30*100)+"%";
+
+ const options=document.getElementById("options");
+ options.innerHTML="";
+
+ q[1].forEach((text,j)=>{
+  const b=document.createElement("button");
+  b.className="option";
+  const letter=document.createElement("span");
+  letter.className="letter";
+  letter.textContent=letters[j];
+  const label=document.createElement("span");
+  label.textContent=text;
+  b.append(letter,label);
+
+  if(answers[i]!==null){
+   b.disabled=true;
+   if(j===q[2])b.classList.add("right");
+   if(j===answers[i]&&j!==q[2])b.classList.add("incorrect");
+   if(j===answers[i])b.classList.add("selected");
+  }
+
+  b.onclick=()=>chooseAnswer(j);
+  options.appendChild(b);
+ });
+
+ if(answers[i]!==null)showFeedback(i);
+
+ document.getElementById("prevBtn").disabled=i===0;
+ document.getElementById("nextBtn").disabled=i===29;
+ updateProgress();
+}
+
+function chooseAnswer(j){
+ if(answers[current]!==null)return;
+ answers[current]=j;
+ renderQuestion(current);
+}
+
+function showFeedback(i){
+ const box=document.getElementById("feedback");
+ const correct=questions[i][2];
+ const chosen=answers[i];
+ box.className="show "+(chosen===correct?"good":"bad");
+
+ if(chosen===correct){
+  box.innerHTML="<strong>✅ To‘g‘ri javob!</strong>"+
+   "Sen "+letters[chosen]+" variantni tanlading. Ajoyib!";
+ }else{
+  box.innerHTML="<strong>❌ Noto‘g‘ri javob</strong>"+
+   "Sen tanlagan javob: "+letters[chosen]+
+   "<br>To‘g‘ri javob: <b>"+letters[correct]+" — "+
+   questions[i][1][correct]+"</b>";
+ }
+
+ document.getElementById("questionStatus").textContent=
+  chosen===correct?"✅ To‘g‘ri":"❌ Noto‘g‘ri";
+}
+
+function updateProgress(){
+ const count=answers.filter(a=>a!==null).length;
+ document.getElementById("answered").textContent=count+" / 30";
+ document.getElementById("progressBar").style.width=(count/30*100)+"%";
+
+ [...numbers.children].forEach((b,i)=>{
+  b.classList.remove("active","correct","wrong");
+  if(i===current)b.classList.add("active");
+  if(answers[i]!==null){
+   b.classList.add(answers[i]===questions[i][2]?"correct":"wrong");
+  }
+ });
+}
+
+function move(step){
+ const next=current+step;
+ if(next>=0&&next<30)renderQuestion(next);
+}
+
+function finishTest(){
+ const answered=answers.filter(a=>a!==null).length;
+ const score=answers.reduce((sum,a,i)=>
+  sum+(a===questions[i][2]?1:0),0);
+
+ finished=true;
+ const el=document.getElementById("resultSummary");
+ el.textContent="🏆 Natija: "+score+" / 30 ta to‘g‘ri. "+
+  "Javob berilgan: "+answered+" / 30.";
+ el.style.color="#a5b4fc";
+}
+
+function toggleKeys(){
+ const panel=document.getElementById("answerPanel");
+ panel.style.display=panel.style.display==="block"?"none":"block";
+ if(panel.style.display==="block")showKey(currentKey);
+}
+
+function showKey(slide){
+ if(slide<0||slide>2)return;
+ currentKey=slide;
+
+ document.querySelectorAll(".key-slide").forEach((b,i)=>
+  b.classList.toggle("active",i===slide));
+
+ const content=document.getElementById("keyContent");
+ content.innerHTML="";
+ const grid=document.createElement("div");
+ grid.className="key-list";
+
+ for(let i=slide*10;i<slide*10+10;i++){
+  const item=document.createElement("div");
+  item.className="key-item";
+  const n=document.createElement("div");
+  n.textContent=(i+1)+"-savol";
+  const answer=document.createElement("strong");
+  answer.textContent=letters[questions[i][2]];
+  item.append(n,answer);
+  grid.appendChild(item);
+ }
+
+ content.appendChild(grid);
+ document.getElementById("keyPrev").disabled=slide===0;
+ document.getElementById("keyNext").disabled=slide===2;
+}
+
+renderQuestion(0);
+</script>
+</body>
+</html>
